@@ -6,24 +6,35 @@ initPubSub()
 
 function App() {
   const [received, setReceived] = useState(null)
+  const [subscription, setSubscription] = useState(null);
 
   //Define the channel name here
-  let channel = '5Yt1IujBmOm1LSux9KDUTjCE7rJqepzP7gZKf_DyzWI'
+  let channel = 'states/DRE-BAZAR-1/KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw'
 
   useEffect(() => {
     async function doSubscribe() {
-      const subscription = await subscribe(channel, ({ data }) => setReceived(data), console.error)
-      console.log(subscription);
+      const subscription = await subscribe(
+        channel,
+        ({ data }) => {
+          setReceived(data);
+          if (subscription) {
+            subscription.unsubscribe()
+          }
+        },
+        console.error
+      );
+
+      setSubscription(subscription);
     }
     doSubscribe();
-    // return () => subscription.unsubscribe()
-  }, [channel])
+  }, []);
+
 
   //Display pushed data on browser
   return (
     <div className="App">
       <header className="App-header">
-        <p>Subscribed/Listening to channel "{channel}"...</p>
+        <p>Subscribed to channel "{channel}"...</p>
         <pre>{JSON.stringify(JSON.parse(received), null, 2)}</pre>
       </header>
     </div>
